@@ -9,7 +9,7 @@ namespace IIgneousStudio
     public partial class Form1 : Form
     {
         string name = "Project";
-        string version = "0.0.2";
+        string version = "0.0.3";
 
         public Form1()
         {
@@ -30,9 +30,13 @@ namespace IIgneousStudio
 
             openFile1.Filter = "IIgneous files (*.ii)|*.ii|txt files (*.txt)|*.txt|All files (*.*)|*.*";
             openFile1.FilterIndex = 1;
+            RichTextBox richTextBox = new RichTextBox();
             if (openFile1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                richTextBox2.LoadFile(openFile1.FileName, RichTextBoxStreamType.PlainText);
-            name = openFile1.FileName;
+            {
+                richTextBox.LoadFile(openFile1.FileName, RichTextBoxStreamType.PlainText);
+                addTabs(richTextBox, System.IO.Path.GetFileName(openFile1.FileName));
+            }
+            name = System.IO.Path.GetFileName(openFile1.FileName);
             this.Text = name;
             toolStripStatusLabel1.Text = "Ready";
         }
@@ -80,16 +84,19 @@ namespace IIgneousStudio
         {
             toolStripStatusLabel1.Text = "Updating Number Label";
             Point pos = new Point(0, 0);
-            int firstIndex = richTextBox2.GetCharIndexFromPosition(pos);
-            int firstLine = richTextBox2.GetLineFromCharIndex(firstIndex);
+
+            var richTextBox = (RichTextBox)tabControl1.SelectedTab.Controls[0];
+
+            int firstIndex = richTextBox.GetCharIndexFromPosition(pos);
+            int firstLine = richTextBox.GetLineFromCharIndex(firstIndex);
 
             pos.X = ClientRectangle.Width;
             pos.Y = ClientRectangle.Height;
 
-            int lastIndex = richTextBox2.GetCharIndexFromPosition(pos);
-            int lastLine = richTextBox2.GetLineFromCharIndex(lastIndex);
+            int lastIndex = richTextBox.GetCharIndexFromPosition(pos);
+            int lastLine = richTextBox.GetLineFromCharIndex(lastIndex);
 
-            pos = richTextBox2.GetPositionFromCharIndex(lastIndex);
+            pos = richTextBox.GetPositionFromCharIndex(lastIndex);
             richTextBox1.Text = "";
             for (int i = firstLine; i <= lastLine + 1; i++)
             {
@@ -128,7 +135,8 @@ namespace IIgneousStudio
                     {
                         using (TextWriter tw = new StreamWriter(fs))
                         {
-                            foreach (string line in richTextBox2.Text.Split(new string[] { "\n" }, StringSplitOptions.None))
+                            //foreach (string line in richTextBox2.Text.Split(new string[] { "\n" }, StringSplitOptions.None))
+                            foreach (string line in tabControl1.SelectedTab.Controls[0].Text.Split(new string[] { "\n" }, StringSplitOptions.None))
                             {
                                 tw.WriteLine(line);
                             }
@@ -136,7 +144,7 @@ namespace IIgneousStudio
                     }
                 }
                 Form1_Load(null, null);
-                name = saveFileDialog1.FileName;
+                name = System.IO.Path.GetFileName(saveFileDialog1.FileName);
                 DirectoryInfo di = new DirectoryInfo(Path.GetDirectoryName(saveFileDialog1.FileName));
                 this.Text = name;
                 return di.FullName;
@@ -170,6 +178,68 @@ namespace IIgneousStudio
             channelLogWindow.Show();
             channelLogWindow.loadAsChannel(version);
 	 
+        }
+
+        private void addTabs(RichTextBox richTextBox,string name)
+        {
+            //Add Tabs
+            try
+            {
+                if (tabControl1.TabPages.Count <= 8)
+                {
+                    TabPage tabPage = new TabPage();
+                    tabPage.Controls.Add(richTextBox);
+                    if (name == null)
+                    {
+                        tabPage.Text = "Page: " + (tabControl1.TabCount + 1).ToString();
+                        tabPage.Tag = "Page: " + (tabControl1.TabCount + 1).ToString();
+                    }
+                    else
+                    {
+                        tabPage.Text = name;
+                        tabPage.Tag = name;
+                    }
+                    richTextBox.Dock = DockStyle.Fill;
+
+                    tabControl1.TabPages.Add(tabPage);
+                }
+                else
+                    MessageBox.Show("You have reached the max threshold for tabs.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        private void toolStripButton6_Click(object sender, EventArgs e)
+        {
+            //Add Tabs
+            RichTextBox richTextBox = new RichTextBox();
+            addTabs(richTextBox,null);
+        }
+
+        private void toolStripButton7_Click(object sender, EventArgs e)
+        {
+            //Remove Tabs
+            try
+            {
+                if (tabControl1.TabPages.Count > 1)
+                {
+                    tabControl1.TabPages.Remove(tabControl1.SelectedTab);
+                }
+            }
+            catch (Exception ee)
+            {
+                MessageBox.Show(ee.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine(ee.Message);
+            }
+        }
+
+        private void tabControl1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            updateNumberLabel(sender, e);
         }
     }
 }
