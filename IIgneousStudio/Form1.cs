@@ -9,6 +9,7 @@ namespace IIgneousStudio
     public partial class Form1 : Form
     {
         string name = "Project";
+        string version = "0.0.2";
 
         public Form1()
         {
@@ -42,23 +43,34 @@ namespace IIgneousStudio
             toolStripStatusLabel1.Text = "Saving and Running";
             try
             {
-                string path = saveToText();
-                Process p = Process.Start(name, "iigneous.exe");
+                //string path = 
+                saveToText();
+                //Process p = Process.Start(name, "iigneous.exe");
+
+
+
+                Process process = new Process();
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.FileName = name;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.Arguments = "iigneous.exe";
+                process.Start();
                 name = name.Substring(0, name.Length - 3);
                 name += ".exe";
+
                 try
                 {
                     Process c = Process.Start(name);
                 }
                 catch (Exception ee)
                 {
+                    MessageBox.Show(ee.ToString(),"Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
                     Console.WriteLine(ee.Message);
                 }
-                //Thread.Sleep(600);  // Allow the process to open it's window
-                //SetParent(p.MainWindowHandle, panel1.Handle);
             }
             catch (Exception ee)
             {
+                MessageBox.Show(ee.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Console.WriteLine(ee.Message);
             }
             toolStripStatusLabel1.Text = "Ready";
@@ -70,10 +82,13 @@ namespace IIgneousStudio
             Point pos = new Point(0, 0);
             int firstIndex = richTextBox2.GetCharIndexFromPosition(pos);
             int firstLine = richTextBox2.GetLineFromCharIndex(firstIndex);
+
             pos.X = ClientRectangle.Width;
             pos.Y = ClientRectangle.Height;
+
             int lastIndex = richTextBox2.GetCharIndexFromPosition(pos);
             int lastLine = richTextBox2.GetLineFromCharIndex(lastIndex);
+
             pos = richTextBox2.GetPositionFromCharIndex(lastIndex);
             richTextBox1.Text = "";
             for (int i = firstLine; i <= lastLine + 1; i++)
@@ -128,6 +143,7 @@ namespace IIgneousStudio
             }
             catch (Exception e)
             {
+                MessageBox.Show(e.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Console.WriteLine(e.Message);
             }
             toolStripStatusLabel1.Text = "Ready";
@@ -142,7 +158,17 @@ namespace IIgneousStudio
         private void toolStripButton4_Click(object sender, EventArgs e)
         {
             Form2 outputWindow = new Form2();
+            outputWindow.Name = "Output";
             outputWindow.Show();
+	 
+        }
+
+        private void toolStripButton5_Click(object sender, EventArgs e)
+        {
+            Form2 channelLogWindow = new Form2();
+            channelLogWindow.Name = "Channel Log";
+            channelLogWindow.Show();
+            channelLogWindow.loadAsChannel(version);
 	 
         }
     }

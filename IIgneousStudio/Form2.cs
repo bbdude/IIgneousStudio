@@ -15,5 +15,22 @@ namespace IIgneousStudio
         {
             InitializeComponent();
         }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+
+        }
+        public void loadAsChannel(string version)
+        {
+            var contents = new System.Net.WebClient().DownloadString("http://iigniteus.com/Logs/Studio/Log.txt");
+            richTextBox1.Text = contents.ToString();
+            contents = new System.Net.WebClient().DownloadString("http://iigniteus.com/Logs/Studio/Version.txt");
+            if (version != contents.ToString())
+                MessageBox.Show("Current Version: " + contents.ToString() + ".\nYour version: " + version + ".\n\nPlease update to ensure the best experience.", "Need to update", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        public void loadAsOutput()
+        {
+
+        }
     }
 }
