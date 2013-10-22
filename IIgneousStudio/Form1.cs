@@ -10,6 +10,8 @@ namespace IIgneousStudio
     {
         string name = "Project";
         string version = "0.0.3";
+        int checkLength = 2;
+        string lastText = "";
 
         public Form1()
         {
@@ -240,6 +242,101 @@ namespace IIgneousStudio
         private void tabControl1_KeyPress(object sender, KeyPressEventArgs e)
         {
             updateNumberLabel(sender, e);
+        }
+
+        private void toolStripButton8_Click(object sender, EventArgs e)
+        {
+            if (Convert.ToInt32(toolStripTextBox1.Text) > 0 && Convert.ToInt32(toolStripTextBox1.Text) < 5)
+            {
+                try
+                {
+                    checkLength = Convert.ToInt32(toolStripTextBox1.Text);
+                    MessageBox.Show("Check Length Box was changed", "Check Box", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch(Exception ee)
+                {
+                    MessageBox.Show(ee.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Console.WriteLine(ee.Message);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Check Length Box was not used correctly","Check Box",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                toolStripTextBox1.Text = checkLength.ToString();
+            }
+        }
+
+        private void richTextBox2_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == '\b')
+            {
+                try
+                {
+                    lastText = lastText.Substring(0, lastText.Length - 1);
+                }
+                catch (Exception ee)
+                {
+                    Console.WriteLine(ee.Message);
+                }
+            }
+            else  if (e.KeyChar == '\r' || e.KeyChar == ' ')
+            {
+                lastText = "";
+            }
+            else
+                lastText += e.KeyChar;
+
+            if (lastText.Length >= checkLength)
+            {
+                IWin32Window win = this;
+                string toSay = "";
+                if (lastText == "check".Substring(0, 5 - checkLength))
+                {
+                    toSay += "check?\n";
+                }
+                else if (lastText == "pause".Substring(0, 5 - checkLength))
+                {
+                    toSay += "pause?\n";
+                }
+                else if (lastText == "var  ".Substring(0, 5 - checkLength))
+                {
+                    toSay += "var?\n";
+                }
+                else if (lastText == "string".Substring(0, 6 - checkLength))
+                {
+                    toSay += "string?\n";
+                }
+                else if (lastText == "int  ".Substring(0, 5 - checkLength))
+                {
+                    toSay += "int?\n";
+                }
+                else if (lastText == "print".Substring(0, 5 - checkLength))
+                {
+                    toSay += "print?\n";
+                }
+                else if (lastText == "foreach  ".Substring(0, 7 - checkLength))
+                {
+                    toSay += "foreach?\n";
+                }
+                else if (lastText == "for  ".Substring(0, 5 - checkLength))
+                {
+                    toSay += "for?\n";
+                }
+                else if (lastText == "end  ".Substring(0, 5 - checkLength))
+                {
+                    toSay += "end?\n";
+                }
+                else if (lastText == "CLR  ".Substring(0, 5 - checkLength))
+                {
+                    toSay += "CLR?\n";
+                }
+                else if (lastText == "read_int".Substring(0, 8 - checkLength))
+                {
+                    toSay += "read_int?\n";
+                }
+                if (toSay != "")
+                    toolTip1.Show(toSay, win, MousePosition);
+            }
         }
     }
 }
