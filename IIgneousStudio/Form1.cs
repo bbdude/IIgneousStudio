@@ -9,7 +9,7 @@ namespace IIgneousStudio
     public partial class Form1 : Form
     {
         string name = "Project";
-        string version = "0.0.3";
+        string version = "0.0.5";
         int checkLength = 2;
         string lastText = "";
 
@@ -246,23 +246,31 @@ namespace IIgneousStudio
 
         private void toolStripButton8_Click(object sender, EventArgs e)
         {
-            if (Convert.ToInt32(toolStripTextBox1.Text) > 0 && Convert.ToInt32(toolStripTextBox1.Text) < 5)
+            try
             {
-                try
+                if (Convert.ToInt32(toolStripTextBox1.Text) > 0 && Convert.ToInt32(toolStripTextBox1.Text) < 5)
                 {
-                    checkLength = Convert.ToInt32(toolStripTextBox1.Text);
-                    MessageBox.Show("Check Length Box was changed", "Check Box", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    try
+                    {
+                        checkLength = Convert.ToInt32(toolStripTextBox1.Text);
+                        MessageBox.Show("Check Length Box was changed", "Check Box", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ee)
+                    {
+                        MessageBox.Show(ee.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Console.WriteLine(ee.Message);
+                    }
                 }
-                catch(Exception ee)
+                else
                 {
-                    MessageBox.Show(ee.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    Console.WriteLine(ee.Message);
+                    MessageBox.Show("Check Length Box was not used correctly", "Check Box", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    toolStripTextBox1.Text = checkLength.ToString();
                 }
             }
-            else
+            catch(Exception ee)
             {
-                MessageBox.Show("Check Length Box was not used correctly","Check Box",MessageBoxButtons.OK,MessageBoxIcon.Error);
-                toolStripTextBox1.Text = checkLength.ToString();
+                MessageBox.Show(ee.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine(ee.Message);
             }
         }
 
@@ -337,6 +345,61 @@ namespace IIgneousStudio
                 if (toSay != "")
                     toolTip1.Show(toSay, win, MousePosition);
             }
+        }
+
+        private void toolStripButton9_Click(object sender, EventArgs e)
+        {
+            string folderName = null;
+            string note = Microsoft.VisualBasic.Interaction.InputBox("Input note text:", "Note for project", "");
+            DialogResult dr = MessageBox.Show("Make a project folder with that?", "Project Folder", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (dr == DialogResult.Yes)
+            {
+                //Make a folder then place it inside
+                toolStripStatusLabel1.Text = "Saving Project Folder";
+                folderName = Microsoft.VisualBasic.Interaction.InputBox("Folder name:", "Name for project", "");
+            }
+            try
+            {
+                toolStripStatusLabel1.Text = "Saving Note";
+
+                SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
+                saveFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+                saveFileDialog1.FilterIndex = 1;
+                saveFileDialog1.RestoreDirectory = false;
+
+                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    using (FileStream fs = new FileStream(saveFileDialog1.FileName, FileMode.OpenOrCreate))
+                    {
+                        if (folderName != null)
+                        {
+                            string path = saveFileDialog1.FileName;
+                            path.Substring(0, path.Length - Path.GetFileName(path).Length);
+
+                            System.IO.Directory.CreateDirectory(folderName);
+                        }
+                        using (TextWriter tw = new StreamWriter(fs))
+                        {
+                            //foreach (string line in richTextBox2.Text.Split(new string[] { "\n" }, StringSplitOptions.None))
+                            foreach (string line in note.Split(new string[] { "\n" }, StringSplitOptions.None))
+                            {
+                                tw.WriteLine(line);
+                            }
+                        }
+                    }
+                }
+                Form1_Load(null, null);
+                name = System.IO.Path.GetFileName(saveFileDialog1.FileName);
+                DirectoryInfo di = new DirectoryInfo(Path.GetDirectoryName(saveFileDialog1.FileName));
+                this.Text = name;
+            }
+            catch (Exception ee)
+            {
+                MessageBox.Show(ee.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine(ee.Message);
+            }
+            toolStripStatusLabel1.Text = "Ready";
         }
     }
 }
